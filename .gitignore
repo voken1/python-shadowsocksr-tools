@@ -1,3 +1,11 @@
+# DEV TEST
+t.py
+*test.py
+
+# IDE
+.idea
+.vscode
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
