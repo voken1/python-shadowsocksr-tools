@@ -279,37 +279,21 @@ class SSR:
         if self.invalid_attributes:
             return None
 
-        prefix = '{server}:{port}:{protocol}:{method}:{obfs}:{password}'.format(
-            server=self._server,
-            port=self._port,
-            protocol=self._protocol,
-            method=self._method,
-            obfs=self._obfs,
-            password=base64.encode(self._password, urlsafe=True))
+        safe_base64 = '{server}:{port}:{protocol}:{method}:{obfs}:{password}' \
+                      '/?obfsparam={obfs_param}&protoparam={proto_param}&remarks={remarks}&group={group}' \
+                      ''.format(server=self._server,
+                                port=self._port,
+                                protocol=self._protocol,
+                                method=self._method,
+                                obfs=self._obfs,
+                                password=base64.encode(self._password, urlsafe=True),
+                                obfs_param=base64.encode(self.obfs_param or '', urlsafe=True),
+                                proto_param=base64.encode(self.proto_param or '', urlsafe=True),
+                                remarks=base64.encode(self.remarks or '', urlsafe=True),
+                                group=base64.encode(self.group or '', urlsafe=True),
+                                )
 
-        suffix_list = []
-        if self._proto_param:
-            suffix_list.append('protoparam={proto_param}'.format(
-                proto_param=base64.encode(self.proto_param, urlsafe=True),
-            ))
-
-        if self._obfs_param:
-            suffix_list.append('obfsparam={obfs_param}'.format(
-                obfs_param=base64.encode(self.obfs_param, urlsafe=True),
-            ))
-
-        suffix_list.append('remarks={remarks}'.format(
-            remarks=base64.encode(self.remarks, urlsafe=True),
-        ))
-
-        suffix_list.append('group={group}'.format(
-            group=base64.encode(self.group, urlsafe=True),
-        ))
-
-        return 'ssr://{}'.format(base64.encode('{prefix}/?{suffix}'.format(
-            prefix=prefix,
-            suffix='&'.join(suffix_list),
-        ), urlsafe=True))
+        return 'ssr://{}'.format(base64.encode(safe_base64, urlsafe=True))
 
     @url.setter
     def url(self, url: str):
