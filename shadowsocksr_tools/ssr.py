@@ -11,7 +11,7 @@ import common_patterns
 import cli_print as cp
 import urllib.parse
 import ip_query
-from qwert import (list_fn, base64)
+from qwert import (list_fn, base64, net)
 from .errors import *
 
 
@@ -22,6 +22,9 @@ class SSR:
                  ):
         self._path_to_python = path_to_python or '/usr/bin/python3'
         self._path_to_python_ssr = path_to_python_ssr or '/data/repo/shadowsocksr/shadowsocks/local.py'
+        if not os.path.exists(self._path_to_python_ssr):
+            cp.error('"{}" does not exists.'.format(self._path_to_python_ssr))
+            exit()
 
         self._server = None
         self._port = None
@@ -158,10 +161,14 @@ class SSR:
 
     @property
     def local_port(self):
-        return self._local_port or 13431
+        if self._local_port:
+            return self._local_port
+        else:
+            self._local_port = net.get_free_port(10000)
+            return self._local_port
 
     @local_port.setter
-    def local_port(self, value: int):
+    def local_port(self, value: int = None):
         self._local_port = value
 
     @property
@@ -497,7 +504,7 @@ class SSR:
 
         # Group PID
         gpid = os.getpgid(self._sub_progress.pid)
-        cp.wr(cp.Fore.LIGHTYELLOW_EX + '(G)PID {} '.format(gpid))
+        cp.wr(cp.Fore.LIGHTYELLOW_EX + '(G)PID {}:{} '.format(gpid, self.local_port))
 
         # wait, during the progress launching.
         for i in range(0, 5):
@@ -540,20 +547,6 @@ class SSR:
         cp.about_t('Deleting', self.path_to_ssr_conf, 'config file')
         os.remove(self.path_to_ssr_conf)
         cp.success()
-
-    @staticmethod
-    def __is_port_open(port: int):
-        cp.about_t('Checking', 'local port #.{}'.format(port))
-
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            s.connect(('127.0.0.1', port))
-            s.shutdown(2)
-            cp.success('is open')
-            return True
-        except:
-            cp.success('is down')
-            return False
 
 
 def get_urls_by_subscribe(url: str,
