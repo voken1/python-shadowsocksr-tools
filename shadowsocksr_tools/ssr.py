@@ -2,6 +2,7 @@
 import os
 import sys
 import time
+import hashlib
 import socket
 import requests_cache
 import proxy_fn
@@ -80,6 +81,12 @@ class SSR:
     @property
     def port(self):
         return self._port
+
+    @property
+    def hash_md5(self):
+        h = hashlib.md5()
+        h.update(bytes('{}:{}'.format(self.server, self.port), encoding='utf-8'))
+        return h.hexdigest()
 
     @property
     def method(self):
