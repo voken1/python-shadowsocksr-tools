@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="shadowsocksr-tools",
-    version="1.3.1",
+    version="1.3.2",
     packages=find_packages(),
 
     # metadata for upload to PyPI

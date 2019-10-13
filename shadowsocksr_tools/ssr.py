@@ -84,9 +84,11 @@ class SSR:
 
     @property
     def hash_md5(self):
-        h = hashlib.md5()
-        h.update(bytes('{}:{}'.format(self.server, self.port), encoding='utf-8'))
-        return h.hexdigest()
+        return hashlib.md5('{}:{}'.format(self.server, self.port).encode('utf-8')).hexdigest()
+
+    @property
+    def hash_sha256(self):
+        return hashlib.sha256('{}:{}'.format(self.server, self.port).encode('utf-8')).hexdigest()
 
     @property
     def method(self):
